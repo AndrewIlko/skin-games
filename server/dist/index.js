@@ -36,17 +36,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const express_session_1 = __importDefault(require("express-session"));
+const passport_1 = __importDefault(require("passport"));
+const crypto_1 = __importDefault(require("crypto"));
+const passport_steam_1 = require("passport-steam");
 const cors_1 = __importDefault(require("cors"));
 const mongoDB = __importStar(require("mongodb"));
 const port = 10000;
 const url = `mongodb+srv://admin:admin@cluster0.x9dzgnt.mongodb.net/skin_games?retryWrites=true&w=majority`;
 const client = new mongoDB.MongoClient(url);
+const secretKey = crypto_1.default.randomBytes(32).toString("hex");
+const app = (0, express_1.default)();
+app.use((0, cors_1.default)());
 const DB = () => __awaiter(void 0, void 0, void 0, function* () {
     const db = yield client.db("skin_games");
     return db;
 });
-const app = (0, express_1.default)();
-app.use((0, cors_1.default)());
+app.use((0, express_session_1.default)({
+    secret: secretKey,
+    resave: true,
+    saveUninitialized: true,
+}));
+app.use(passport_1.default.initialize());
+app.use(passport_1.default.session());
+passport_1.default.use(new passport_steam_1.Strategy({
+    returnURL: "http://localhost:10000/auth/steam/return",
+    realm: "http://localhost:10000/",
+    apiKey: "3F0476DB842874F0D9F1481092C5C1C4",
+}, (identifier, profile, done) => {
+    done(null, profile);
+}));
+passport_1.default.serializeUser((user, done) => done(null, user));
+passport_1.default.deserializeUser((user, done) => done(null, user));
+app.get("/auth/steam", passport_1.default.authenticate("steam"));
+app.get("/auth/steam/return", passport_1.default.authenticate("steam", { failureRedirect: "/auth/steam" }), (req, res) => {
+    res.redirect(`http://localhost:3000?user=${JSON.stringify(req.user)}`);
+});
 app.get("/game/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
@@ -57,7 +82,6 @@ app.get("/game/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
     catch (e) {
         res.json({ status: "Failed", message: "Error, try again later" });
-        throw new Error("Bad data format");
     }
 }));
 app.listen(port, () => {

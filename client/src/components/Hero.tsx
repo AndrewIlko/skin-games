@@ -1,12 +1,12 @@
-import React from "react";
-import GameCard from "./GameCard/GameCard";
-
 import { GameCardType } from "@/ts/types/app_types";
 import useWindowWidth from "@/custom_hooks/useWindowWidth";
 import Deck from "./Deck";
+import { useRouter } from "next/router";
 
 const Hero = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
   const windowWidth: number = useWindowWidth();
+
+  const router = useRouter();
 
   return (
     <>
@@ -23,7 +23,12 @@ const Hero = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
             Purchase games with a huge discount.
           </div>
           <div className="flex flex-col">
-            <button className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] tablet:px-[48px] py-[12px] tablet:py-[24px] text-[#fff] text-[14px] tablet:text-[18px] flex items-center gap-[10px] w-fit">
+            <button
+              className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] tablet:px-[48px] py-[12px] tablet:py-[24px] text-[#fff] text-[14px] tablet:text-[18px] flex items-center gap-[10px] w-fit"
+              onClick={() => {
+                router.push("http://localhost:10000/auth/steam");
+              }}
+            >
               <svg
                 className="w-[16px] mt-[1px]"
                 role="img"

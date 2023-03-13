@@ -3,11 +3,29 @@ import Hero from "@/components/Hero";
 import Logo from "@/components/Logo";
 import Main from "@/components/Main";
 import axios from "axios";
+import { useRouter } from "next/router";
 import Head from "next/head";
-
+import { GetStaticPropsContext } from "next";
 import { GameCardType } from "@/ts/types/app_types";
+import { useEffect, useState } from "react";
 
 export default function Home({ heroGames }: { heroGames: GameCardType[] }) {
+  const [user, setUser] = useState<string | null>(null);
+
+  const router = useRouter();
+  if (router.query.user) {
+    const dataToSave: string = String(router.query.user);
+    localStorage.setItem("user", dataToSave);
+    router.push("/");
+  }
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setUser(user);
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -18,7 +36,12 @@ export default function Home({ heroGames }: { heroGames: GameCardType[] }) {
 
       <Header>
         <Logo />
-        <button className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] py-[12px] text-[#fff] text-[14px] flex items-center gap-[10px] w-fit">
+        <button
+          className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] py-[12px] text-[#fff] text-[14px] flex items-center gap-[10px] w-fit"
+          onClick={() => {
+            router.push("http://localhost:10000/auth/steam");
+          }}
+        >
           <svg
             className="w-[16px] mt-[1px]"
             role="img"
@@ -66,8 +89,9 @@ const fetchHeroGames = async () => {
   return result;
 };
 
-export const getStaticProps = async () => {
+export const getStaticProps = async (context: GetStaticPropsContext) => {
   const heroGames = await fetchHeroGames();
+
   return {
     props: {
       heroGames,
