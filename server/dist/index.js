@@ -35,16 +35,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DB = void 0;
 const express_1 = __importDefault(require("express"));
 const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("passport"));
 const crypto_1 = __importDefault(require("crypto"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const passport_steam_1 = require("passport-steam");
 const cors_1 = __importDefault(require("cors"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const mongoDB = __importStar(require("mongodb"));
-const port = 10000;
-const url = `mongodb+srv://admin:admin@cluster0.x9dzgnt.mongodb.net/skin_games?retryWrites=true&w=majority`;
-const client = new mongoDB.MongoClient(url);
+const db_1 = require("./db");
+dotenv_1.default.config();
+const PORT = process.env.PORT;
+const MONGODB_URL = process.env.MONGODB_URL || "";
+const JWT_SECRET = process.env.JWT_SECRET || "";
+const client = new mongoDB.MongoClient(MONGODB_URL);
 const secretKey = crypto_1.default.randomBytes(32).toString("hex");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -52,6 +58,7 @@ const DB = () => __awaiter(void 0, void 0, void 0, function* () {
     const db = yield client.db("skin_games");
     return db;
 });
+exports.DB = DB;
 app.use((0, express_session_1.default)({
     secret: secretKey,
     resave: true,
@@ -69,13 +76,30 @@ passport_1.default.use(new passport_steam_1.Strategy({
 passport_1.default.serializeUser((user, done) => done(null, user));
 passport_1.default.deserializeUser((user, done) => done(null, user));
 app.get("/auth/steam", passport_1.default.authenticate("steam"));
-app.get("/auth/steam/return", passport_1.default.authenticate("steam", { failureRedirect: "/auth/steam" }), (req, res) => {
-    res.redirect(`http://localhost:3000?user=${JSON.stringify(req.user)}`);
-});
+app.get("/auth/steam/return", passport_1.default.authenticate("steam", { failureRedirect: "/auth/steam" }), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (req.user) {
+        const userSteam = req.user;
+        let userFromDB = yield (0, db_1.validUser)(userSteam);
+        if (userFromDB == null) {
+            userFromDB = yield (0, db_1.createUser)(userSteam);
+        }
+        const token = jsonwebtoken_1.default.sign(Object.assign({}, userFromDB), JWT_SECRET, {
+            expiresIn: "6h",
+        });
+        res.redirect(`http://localhost:3000/?jwt=${token}}`);
+    }
+}));
+app.get("/categories", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const categories = yield (yield (0, exports.DB)())
+        .collection("games-categories")
+        .find({})
+        .toArray();
+    res.json(categories);
+}));
 app.get("/game/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const gameById = yield (yield DB())
+        const gameById = yield (yield (0, exports.DB)())
             .collection("games")
             .findOne({ _id: new mongoDB.ObjectId(id) });
         res.json({ status: "Success", data: gameById });
@@ -84,9 +108,42 @@ app.get("/game/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.json({ status: "Failed", message: "Error, try again later" });
     }
 }));
-app.listen(port, () => {
+const validPage = (page, total) => {
+    const pageNum = Number(page);
+    if (!pageNum || pageNum == 0 || pageNum < 0)
+        return 1;
+    if (pageNum > total)
+        return total;
+};
+app.get("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const query = req.query;
+    const filter = {};
+    const limit = 20;
+    if (query.category) {
+        if (Array.isArray(query.category)) {
+            filter.category = { $in: [...query.category] };
+        }
+        else {
+            filter.category = { $in: [query.category] };
+        }
+    }
+    const totalCount = yield (yield (0, exports.DB)())
+        .collection("games")
+        .countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limit);
+    const page = validPage(query.page, totalPages) || 1;
+    const skip = (page - 1) * limit;
+    const records = yield (yield (0, exports.DB)())
+        .collection("games")
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+        .toArray();
+    res.json({ games: records, totalPages });
+}));
+app.listen(PORT, () => {
     client.connect().then(() => {
         console.log("DB connected.");
     });
-    console.log(`Server is running on port ${port}.`);
+    console.log(`Server is running on port ${PORT}.`);
 });

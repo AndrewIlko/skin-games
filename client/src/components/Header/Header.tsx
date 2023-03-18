@@ -1,11 +1,11 @@
-import Container from "./Container";
+import Container from "../Container";
 
 const Header = ({ children }: { children: any }) => {
   return (
     <>
-      <div className="border-b ">
+      <div className="border-b">
         <Container>
-          <header className="w-full h-[64px] flex items-center justify-between px-[25px]">
+          <header className="w-full h-[64px] flex items-center justify-between px-[25px] text-neutral-800">
             {children}
           </header>
         </Container>

@@ -1,30 +1,26 @@
-import Header from "@/components/Header";
+import Header from "@/components/Header/Header";
 import Hero from "@/components/Hero";
-import Logo from "@/components/Logo";
+import Logo from "@/components/Header/Logo";
 import Main from "@/components/Main";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Head from "next/head";
-import { GetStaticPropsContext } from "next";
-import { GameCardType } from "@/ts/types/app_types";
-import { useEffect, useState } from "react";
+import { fetchData } from "@/helpers/fetchFunc";
+import { GameCardType, CategoryInfoType } from "@/ts/types/app_types";
+import { useSelector } from "react-redux";
+import AccountNav from "@/components/Header/AccountNav";
+import Balance from "@/components/Header/Balance";
+import CategoriesTiles from "@/components/CategoryDisplay/CategoriesTiles";
 
-export default function Home({ heroGames }: { heroGames: GameCardType[] }) {
-  const [user, setUser] = useState<string | null>(null);
-
+export default function Home({
+  heroGames,
+  categories,
+}: {
+  heroGames: GameCardType[];
+  categories: CategoryInfoType[];
+}) {
   const router = useRouter();
-  if (router.query.user) {
-    const dataToSave: string = String(router.query.user);
-    localStorage.setItem("user", dataToSave);
-    router.push("/");
-  }
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      setUser(user);
-    }
-  }, []);
+  const { user } = useSelector((state: any) => state.global);
 
   return (
     <>
@@ -36,48 +32,63 @@ export default function Home({ heroGames }: { heroGames: GameCardType[] }) {
 
       <Header>
         <Logo />
-        <button
-          className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] py-[12px] text-[#fff] text-[14px] flex items-center gap-[10px] w-fit"
-          onClick={() => {
-            router.push("http://localhost:10000/auth/steam");
-          }}
-        >
-          <svg
-            className="w-[16px] mt-[1px]"
-            role="img"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fab"
-            data-icon="steam"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 496 512"
+
+        {user && (
+          <>
+            <div className="flex gap-[10px]">
+              <Balance />
+              <AccountNav />
+            </div>
+          </>
+        )}
+        {!user && (
+          <button
+            className="font-[600] rounded-[6px] bg-[#29102c] px-[16px] py-[12px] text-[#fff] text-[14px] flex items-center gap-[10px] w-fit"
+            onClick={() => {
+              router.push("http://localhost:10000/auth/steam");
+            }}
           >
-            <path
-              fill="currentColor"
-              d="M496 256c0 137-111.2 248-248.4 248-113.8 0-209.6-76.3-239-180.4l95.2 39.3c6.4 32.1 34.9 56.4 68.9 56.4 39.2 0 71.9-32.4 70.2-73.5l84.5-60.2c52.1 1.3 95.8-40.9 95.8-93.5 0-51.6-42-93.5-93.7-93.5s-93.7 42-93.7 93.5v1.2L176.6 279c-15.5-.9-30.7 3.4-43.5 12.1L0 236.1C10.2 108.4 117.1 8 247.6 8 384.8 8 496 119 496 256zM155.7 384.3l-30.5-12.6a52.79 52.79 0 0 0 27.2 25.8c26.9 11.2 57.8-1.6 69-28.4 5.4-13 5.5-27.3.1-40.3-5.4-13-15.5-23.2-28.5-28.6-12.9-5.4-26.7-5.2-38.9-.6l31.5 13c19.8 8.2 29.2 30.9 20.9 50.7-8.3 19.9-31 29.2-50.8 21zm173.8-129.9c-34.4 0-62.4-28-62.4-62.3s28-62.3 62.4-62.3 62.4 28 62.4 62.3-27.9 62.3-62.4 62.3zm.1-15.6c25.9 0 46.9-21 46.9-46.8 0-25.9-21-46.8-46.9-46.8s-46.9 21-46.9 46.8c.1 25.8 21.1 46.8 46.9 46.8z"
-            ></path>
-          </svg>
-          Log in with Steam
-        </button>
+            <svg
+              className="w-[16px] mt-[1px]"
+              role="img"
+              aria-hidden="true"
+              focusable="false"
+              data-prefix="fab"
+              data-icon="steam"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 496 512"
+            >
+              <path
+                fill="currentColor"
+                d="M496 256c0 137-111.2 248-248.4 248-113.8 0-209.6-76.3-239-180.4l95.2 39.3c6.4 32.1 34.9 56.4 68.9 56.4 39.2 0 71.9-32.4 70.2-73.5l84.5-60.2c52.1 1.3 95.8-40.9 95.8-93.5 0-51.6-42-93.5-93.7-93.5s-93.7 42-93.7 93.5v1.2L176.6 279c-15.5-.9-30.7 3.4-43.5 12.1L0 236.1C10.2 108.4 117.1 8 247.6 8 384.8 8 496 119 496 256zM155.7 384.3l-30.5-12.6a52.79 52.79 0 0 0 27.2 25.8c26.9 11.2 57.8-1.6 69-28.4 5.4-13 5.5-27.3.1-40.3-5.4-13-15.5-23.2-28.5-28.6-12.9-5.4-26.7-5.2-38.9-.6l31.5 13c19.8 8.2 29.2 30.9 20.9 50.7-8.3 19.9-31 29.2-50.8 21zm173.8-129.9c-34.4 0-62.4-28-62.4-62.3s28-62.3 62.4-62.3 62.4 28 62.4 62.3-27.9 62.3-62.4 62.3zm.1-15.6c25.9 0 46.9-21 46.9-46.8 0-25.9-21-46.8-46.9-46.8s-46.9 21-46.9 46.8c.1 25.8 21.1 46.8 46.9 46.8z"
+              ></path>
+            </svg>
+            Log in with Steam
+          </button>
+        )}
       </Header>
       <Main>
-        <Hero gamesForAnimation={heroGames} />
+        {!user && <Hero gamesForAnimation={heroGames} />}
+        <CategoriesTiles categories={categories} />
       </Main>
     </>
   );
 }
 
 const fetchHeroGames = async () => {
-  const games: string[] = ["640cac76daaced3ef8d07b82"];
+  const games: string[] = [
+    "640cac76daaced3ef8d07b82",
+    "641326310fa96767532f97b3",
+    "64132a850fa96767532f97b4",
+    "64132ac10fa96767532f97b5",
+    "64132bd00fa96767532f97b6",
+  ];
 
   let result = await Promise.all(
     games.map(async (id) => {
       try {
-        const data = await axios
-          .get(`http://localhost:10000/game/${id}`)
-          .then((res) => res.data);
-        const game = data.data;
-        return game;
+        const game = await fetchData(`/game/${id}`);
+        return game.data;
       } catch (e) {
         return undefined;
       }
@@ -89,12 +100,14 @@ const fetchHeroGames = async () => {
   return result;
 };
 
-export const getStaticProps = async (context: GetStaticPropsContext) => {
+export const getStaticProps = async () => {
   const heroGames = await fetchHeroGames();
+  const categories = await fetchData("/categories");
 
   return {
     props: {
       heroGames,
+      categories,
     },
   };
 };

@@ -33,7 +33,7 @@ const trans = (r: number, s: number) =>
 
 const Deck = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
   const [gone] = useState(() => new Set());
-  const [props, api] = useSprings(6, (i) => ({
+  const [props, api] = useSprings(gamesForAnimation.length, (i) => ({
     ...to(i),
     from: from(i),
   }));
@@ -57,7 +57,7 @@ const Deck = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
           config: { friction: 50, tension: down ? 800 : isGone ? 200 : 500 },
         };
       });
-      if (!down && gone.size === 6)
+      if (!down && gone.size === gamesForAnimation.length)
         setTimeout(() => {
           gone.clear();
           api.start((i) => to(i));
@@ -67,7 +67,7 @@ const Deck = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
 
   return (
     <>
-      <div className="h-full w-full flex justify-center absolute top-[60px] right-0">
+      <div className="h-full w-full flex justify-center absolute items-center">
         {props.map(({ x, y, rot, scale }, i) => (
           <animated.div className={deck.deck} key={i} style={{ x, y }}>
             <animated.div
@@ -77,8 +77,8 @@ const Deck = ({ gamesForAnimation }: { gamesForAnimation: GameCardType[] }) => {
               }}
             >
               <GameCard
-                data={gamesForAnimation[0]}
-                className={`bg-white w-[350px] select-none`}
+                data={gamesForAnimation[i]}
+                className={`bg-white w-[250px] h-[280px] select-none `}
               />
             </animated.div>
           </animated.div>
