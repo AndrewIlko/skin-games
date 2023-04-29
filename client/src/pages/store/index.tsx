@@ -1,3 +1,4 @@
+import EmptyStore from "@/components/Errors/EmptyStore";
 import GameCard from "@/components/GameCard/GameCard";
 import AccountNav from "@/components/Header/AccountNav";
 import Balance from "@/components/Header/Balance";
@@ -6,99 +7,35 @@ import Logo from "@/components/Header/Logo";
 import Main from "@/components/Main";
 import StoreSideFilter from "@/components/Store/StoreSideFilter";
 import { fetchData } from "@/helpers/fetchFunc";
+import { generateArr } from "@/helpers/func";
 import { CategoryInfoType, GameCardType } from "@/ts/types/app_types";
+import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import uuid from "react-uuid";
 
-const StorePage = ({
-  filteredData,
-  categories,
-}: {
-  filteredData: any;
-  categories: CategoryInfoType[];
-}) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [games, setGames] = useState(filteredData.games);
-  const [isPageLoaded, setIsPageLoaded] = useState(false);
+let url = "";
+
+const StorePage = ({ categories }: { categories: CategoryInfoType[] }) => {
   const router = useRouter();
+  const [games, setGames] = useState<GameCardType[] | null>(null);
   const { user } = useSelector((state: any) => state.global);
 
   useEffect(() => {
-    if (isPageLoaded) {
-      (async () => {
-        setIsLoading(true);
-        const data = await fetchData(router.asPath);
+    setGames(null);
+    url = router.asPath;
+    (async () => {
+      const response = await axios.get(
+        `http://localhost:10000${router.asPath}`
+      );
+      const data = response.data;
+      if (response.config.url == `http://localhost:10000${url}`) {
         setGames(data.games);
-        setIsLoading(false);
-      })();
-    }
+      }
+    })();
   }, [router.asPath]);
-
-  useEffect(() => {
-    setIsPageLoaded(true);
-  }, []);
-
-  const skeletonBlocks = [
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-    <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
-      <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
-      <div className="flex flex-col flex-1 justify-between">
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
-        <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
-      </div>
-    </div>,
-  ];
 
   return (
     <>
@@ -146,20 +83,44 @@ const StorePage = ({
       <Main>
         <div className="grid-store min-h-[calc(100vh-64px)]">
           <StoreSideFilter genres={categories} />
-          <div className="grid grid-cols-4 py-[30px] gap-[20px] w-full mx-auto h-fit">
-            {isLoading && skeletonBlocks}
-            {!isLoading &&
-              games.map((game: GameCardType) => {
-                return (
-                  <Fragment key={uuid()}>
-                    <GameCard
-                      data={game}
-                      className={`bg-white max-w-[250px] h-full select-none cursor-pointer`}
-                    />
-                  </Fragment>
-                );
-              })}
-          </div>
+
+          {games && games.length == 0 && <EmptyStore />}
+          {!games && (
+            <>
+              <div className="grid grid-cols-4 py-[30px] gap-[20px] w-full mx-auto h-fit">
+                {generateArr(12).map(() => {
+                  return (
+                    <Fragment key={uuid()}>
+                      <div className="w-full h-[250px] animate-pulse border shadow-md rounded-[8px] p-[10px] flex flex-col">
+                        <div className=" bg-gray-200 rounded-[8px] dark:bg-gray-300 w-full h-[100px]" />
+                        <div className="flex flex-col flex-1 justify-between">
+                          <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[60%] h-[24px] mx-[20px] my-[15px]" />
+                          <div className=" bg-gray-200 rounded-[4px] dark:bg-gray-300 w-[65px] h-[37px] mx-[15px] my-[20px]" />
+                        </div>
+                      </div>
+                    </Fragment>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {games && games.length != 0 && (
+            <>
+              <div className="grid grid-cols-4 py-[30px] gap-[20px] w-full mx-auto h-fit">
+                {games.length != 0 &&
+                  games.map((game: GameCardType) => {
+                    return (
+                      <Fragment key={uuid()}>
+                        <GameCard
+                          data={game}
+                          className={`bg-white max-w-[250px] h-full select-none cursor-pointer`}
+                        />
+                      </Fragment>
+                    );
+                  })}
+              </div>
+            </>
+          )}
         </div>
       </Main>
     </>
@@ -169,16 +130,10 @@ const StorePage = ({
 export default StorePage;
 
 export const getServerSideProps = async (context: any) => {
-  const resolvedUrl = context.resolvedUrl
-    .replaceAll("%5B", "[")
-    .replaceAll("%5D", "]");
-
-  const filteredData = await fetchData(resolvedUrl);
   const categories = await fetchData("/categories");
 
   return {
     props: {
-      filteredData,
       categories,
     },
   };

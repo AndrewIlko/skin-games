@@ -105,11 +105,25 @@ app.get("/store", async (req, res) => {
   const filter: any = {};
   const limit = 20;
 
+  if (query.name) {
+    const name: any = query.name;
+    const regex = new RegExp(name, "i");
+    filter.name = regex;
+  }
   if (query.category) {
     if (Array.isArray(query.category)) {
       filter.category = { $in: [...query.category] };
     } else {
       filter.category = { $in: [query.category] };
+    }
+  }
+  if (query.from || query.to) {
+    filter["price.USD"] = {};
+    if (query.from) {
+      filter["price.USD"]["$gte"] = +query.from || 0;
+    }
+    if (query.to) {
+      filter["price.USD"]["$lte"] = +query.to || 10000;
     }
   }
 

@@ -6,7 +6,7 @@ const Balance = () => {
 
   return (
     <>
-      <div className="h-[41px] text-[14px] font-[500] border rounded-[4px] px-[12px] cursor-pointer flex items-center relative border-neutral-800">
+      <div className="h-[41px] text-[14px] font-[500] rounded-[4px] px-[12px] cursor-pointer flex items-center relative bg-neutral-800 text-[#fff]">
         Balance:
         <span className="ml-[10px]">{user.balance} $</span>
       </div>

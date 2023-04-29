@@ -1,12 +1,13 @@
 import { useEffect, useState, Fragment } from "react";
-import { configureObj, makeAllKeysLower, toLower } from "@/helpers/func";
+import { configureObj, removeLetters } from "@/helpers/func";
 import uuid from "react-uuid";
 
 import { useRouter } from "next/router";
 import { CategoryInfoType, FilterObjType } from "@/ts/types/app_types";
 
 const StoreSideFilter = ({ genres }: { genres: CategoryInfoType[] }) => {
-  const { query, push } = useRouter();
+  const { query, push, asPath } = useRouter();
+
   const [routerParams, setRouterParams] = useState<FilterObjType>({
     category:
       query.category == undefined
@@ -14,29 +15,114 @@ const StoreSideFilter = ({ genres }: { genres: CategoryInfoType[] }) => {
         : Array.isArray(query.category)
         ? query.category
         : [query.category],
+    currency: "USD",
+    from:
+      query.from == undefined
+        ? ""
+        : Array.isArray(query.from)
+        ? query.from[0]
+        : query.from,
+    to:
+      query.to == undefined
+        ? ""
+        : Array.isArray(query.to)
+        ? query.to[0]
+        : query.to,
+    name: !query.name
+      ? ""
+      : Array.isArray(query.name)
+      ? query.name[0]
+      : query.name,
   });
 
-  const makeParamsString = () => {
-    let result = "";
-    if (routerParams.category.length != 0) {
-      routerParams.category.forEach((option, index) => {
-        result += `${index == 0 ? "?" : "&"}category=${option}`;
-      });
+  const queryParamsStr = (paramsObj: FilterObjType): string => {
+    let result = "?";
+    if (paramsObj.name != "") {
+      result += `name=${paramsObj.name}&`;
     }
+    if (paramsObj.category) {
+      if (paramsObj.category.length != 0) {
+        paramsObj.category.forEach((option, index) => {
+          result += `category=${option}&`;
+        });
+      }
+    }
+    if (paramsObj.currency) {
+      result += `currency=${"USD"}&`;
+    }
+    if (paramsObj.from != "") {
+      result += `from=${paramsObj.from}&`;
+    }
+    if (paramsObj.to != "") {
+      result += `to=${paramsObj.to}&`;
+    }
+
+    result = result.slice(0, result.length - 1);
     return result;
   };
 
   useEffect(() => {
     if (JSON.stringify(query) !== JSON.stringify(routerParams)) {
       let url = "http://localhost:3000/store";
-      const params = makeParamsString();
+      const params = queryParamsStr(routerParams);
       push(url + params, undefined, { shallow: true });
     }
   }, [routerParams]);
 
   return (
     <>
-      <div className="flex flex-1 w-full  bg-neutral-800 text-[#fff]">
+      <div className="flex flex-1 flex-col w-full  bg-neutral-800 text-[#fff]">
+        <div className="w-full h-fit">
+          <button className="px-[20px] py-[10px] w-full flex justify-between rounded-[6px]">
+            <span className="font-[500]">Product name</span>
+          </button>
+          <div className="px-[20px]">
+            <input
+              className="w-full py-[5px] rounded-[3px] pl-[15px] pr-[5px] bg-neutral-700 outline-none"
+              type={"text"}
+              value={routerParams["name"]}
+              onChange={(e) => {
+                setRouterParams((prev) => {
+                  const copy = { ...prev };
+                  copy.name = e.target.value;
+                  return copy;
+                });
+              }}
+            />
+          </div>
+        </div>
+        <div className="w-full h-fit">
+          <button className="px-[20px] py-[10px] w-full flex justify-between rounded-[6px]">
+            <span className="font-[500]">Price range</span>
+          </button>
+          <div className="flex px-[20px]">
+            <input
+              className="w-full py-[5px] rounded-[3px] pl-[15px] pr-[5px] bg-neutral-700 outline-none"
+              type={"text"}
+              value={routerParams["from"]}
+              onChange={(e) => {
+                setRouterParams((prev) => {
+                  const copy = { ...prev };
+                  copy.from = removeLetters(e.target.value);
+                  return copy;
+                });
+              }}
+            />
+            <strong className="px-[10px]">-</strong>
+            <input
+              className="w-full rounded-[3px] pl-[15px] pr-[5px] py-[5px]  bg-neutral-700 outline-none"
+              type={"text"}
+              value={routerParams["to"]}
+              onChange={(e) => {
+                setRouterParams((prev) => {
+                  const copy = { ...prev };
+                  copy.to = removeLetters(e.target.value);
+                  return copy;
+                });
+              }}
+            />
+          </div>
+        </div>
         <div className="w-full h-fit mt-[20px]">
           <button className="px-[20px] py-[10px] w-full flex justify-between  rounded-[6px]">
             <span className="font-[500]">Genres</span>
@@ -53,15 +139,15 @@ const StoreSideFilter = ({ genres }: { genres: CategoryInfoType[] }) => {
                         return configureObj(
                           { ...prev },
                           "category",
-                          toLower(name)
+                          name.toLowerCase()
                         );
                       })
                     }
                   >
                     <div
                       className={`w-[15px] h-[15px] rounded-[3px] bg-neutral-300 ${
-                        routerParams.category.includes(toLower(name))
-                          ? "bg-green-600"
+                        routerParams.category.includes(name.toLowerCase())
+                          ? "bg-green-800"
                           : ""
                       }`}
                     />

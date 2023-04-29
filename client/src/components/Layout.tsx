@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: any }) => {
   const cookies = new Cookies();
   const tokenFromQuery = router.query.jwt;
   const dispatch = useDispatch();
-  const { setUser } = globalAction;
+  const { setUser, setFavGames } = globalAction;
 
   if (tokenFromQuery) {
     try {
@@ -19,7 +19,8 @@ const Layout = ({ children }: { children: any }) => {
       cookies.set("jwt_token", tokenFromQuery, {
         expires: new Date(decode.exp * 1000),
       });
-      router.push("/");
+      console.log("Fuck");
+      router.push("/", undefined, { shallow: true });
     } catch (e) {
       console.log("Error", e);
     }
@@ -30,13 +31,18 @@ const Layout = ({ children }: { children: any }) => {
 
     if (jwt_token) {
       const decode = jwt(jwt_token);
-      console.log(decode);
       dispatch(setUser(decode));
     } else {
       dispatch(setUser(null));
     }
     console.log("Triggered");
   }, [router.asPath]);
+
+  useEffect(() => {
+    const favDishes = JSON.parse(localStorage.getItem("favGames") || "[]");
+    console.log(favDishes);
+    dispatch(setFavGames(favDishes));
+  }, []);
 
   return <div>{children}</div>;
 };

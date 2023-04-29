@@ -25,15 +25,31 @@ const AccountNav = () => {
     <>
       <div
         data-name="account-nav"
-        className="flex items-center gap-[10px] w-[80px] h-[41px] border border-neutral-800 rounded-[4px] px-[8px] cursor-pointer relative"
+        className="flex items-center gap-[10px] w-[80px] h-[41px] bg-neutral-800 rounded-[4px] px-[8px] cursor-pointer relative"
         onClick={() => setIsDropDown(!isDropDown)}
       >
         <div className="pointer-events-none">
           <img className="w-[32px] rounded-full" src={user.image} />
         </div>
-        <div className="pointer-events-none"></div>
+        <div className="pointer-events-none">
+          <svg
+            role="img"
+            aria-hidden="true"
+            focusable="false"
+            data-prefix="far"
+            data-icon="chevron-down"
+            className="w-[14px] h-[14px]"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 448 512"
+          >
+            <path
+              fill="white"
+              d="M441.9 167.3l-19.8-19.8c-4.7-4.7-12.3-4.7-17 0L224 328.2 42.9 147.5c-4.7-4.7-12.3-4.7-17 0L6.1 167.3c-4.7 4.7-4.7 12.3 0 17l209.4 209.4c4.7 4.7 12.3 4.7 17 0l209.4-209.4c4.7-4.7 4.7-12.3 0-17z"
+            ></path>
+          </svg>
+        </div>
         {isDropDown && (
-          <div className="w-[190px] absolute border border-neutral-800 bg-neutral-50 top-[60px] rounded-[4px] py-[4px] right-0">
+          <div className="w-[190px] absolute border bg-neutral-50 top-[60px] rounded-[4px] py-[4px] right-0">
             <div
               className="px-[16px] py-[12px] text-[14px] mx-[4px] font-[500] flex gap-[10px] rounded-[4px]"
               onClick={() => {

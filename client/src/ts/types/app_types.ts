@@ -42,4 +42,8 @@ export type CategoriesIconsType = {
 export type FilterObjType = {
   [key: string]: any;
   category: string[];
+  currency: string;
+  from: string;
+  to: string;
+  name: string;
 };

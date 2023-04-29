@@ -119,12 +119,26 @@ app.get("/store", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const query = req.query;
     const filter = {};
     const limit = 20;
+    if (query.name) {
+        const name = query.name;
+        const regex = new RegExp(name, "i");
+        filter.name = regex;
+    }
     if (query.category) {
         if (Array.isArray(query.category)) {
             filter.category = { $in: [...query.category] };
         }
         else {
             filter.category = { $in: [query.category] };
+        }
+    }
+    if (query.from || query.to) {
+        filter["price.USD"] = {};
+        if (query.from) {
+            filter["price.USD"]["$gte"] = +query.from || 0;
+        }
+        if (query.to) {
+            filter["price.USD"]["$lte"] = +query.to || 10000;
         }
     }
     const totalCount = yield (yield (0, exports.DB)())
