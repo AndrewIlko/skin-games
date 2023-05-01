@@ -12,29 +12,35 @@ import { CategoryInfoType, GameCardType } from "@/ts/types/app_types";
 import axios from "axios";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import uuid from "react-uuid";
-
-let url = "";
 
 const StorePage = ({ categories }: { categories: CategoryInfoType[] }) => {
   const router = useRouter();
   const [games, setGames] = useState<GameCardType[] | null>(null);
   const { user } = useSelector((state: any) => state.global);
+  const abortController = useRef(new AbortController());
 
-  useEffect(() => {
-    setGames(null);
-    url = router.asPath;
-    (async () => {
+  const fetchGames = async () => {
+    try {
+      abortController.current.abort();
+      abortController.current = new AbortController();
+      setGames(null);
       const response = await axios.get(
-        `http://localhost:10000${router.asPath}`
+        `http://localhost:10000${router.asPath}`,
+        {
+          signal: abortController.current.signal,
+        }
       );
       const data = response.data;
-      if (response.config.url == `http://localhost:10000${url}`) {
-        setGames(data.games);
-      }
-    })();
+      setGames(data.games);
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchGames();
+    return () => abortController.current.abort();
   }, [router.asPath]);
 
   return (

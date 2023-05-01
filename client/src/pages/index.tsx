@@ -33,23 +33,6 @@ export default function Home({
       <Header>
         <Logo />
         <div className="flex justify-center gap-[10px] items-center">
-          <div>
-            <svg
-              viewBox="0 0 24 24"
-              height="24"
-              width="24"
-              xmlns="http://www.w3.org/2000/svg"
-              stroke-width="1.5"
-              fill={"none"}
-            >
-              <path
-                d="M12,21.844l-9.588-10A5.672,5.672,0,0,1,1.349,5.293h0a5.673,5.673,0,0,1,9.085-1.474L12,5.384l1.566-1.565a5.673,5.673,0,0,1,9.085,1.474h0a5.673,5.673,0,0,1-1.062,6.548Z"
-                stroke="black"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-            </svg>
-          </div>
           {user && (
             <>
               <div className="flex gap-[10px]">

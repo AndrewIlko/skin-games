@@ -144,13 +144,14 @@ const StoreSideFilter = ({ genres }: { genres: CategoryInfoType[] }) => {
                       })
                     }
                   >
-                    <div
-                      className={`w-[15px] h-[15px] rounded-[3px] bg-neutral-300 ${
-                        routerParams.category.includes(name.toLowerCase())
-                          ? "bg-green-800"
-                          : ""
-                      }`}
+                    <input
+                      className=""
+                      type="checkbox"
+                      defaultChecked={routerParams.category.includes(
+                        name.toLowerCase()
+                      )}
                     />
+
                     <div className="text-[14px] font-[500] flex-1 ml-[15px]">
                       {name}
                     </div>
