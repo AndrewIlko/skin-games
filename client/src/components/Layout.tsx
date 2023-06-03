@@ -3,7 +3,7 @@ import Cookies from "universal-cookie";
 import jwt from "jwt-decode";
 import { DecodedJWT } from "@/ts/types/app_types";
 import { useDispatch } from "react-redux";
-import { globalAction } from "@/features/globalSlice";
+import { globalActions } from "@/features/globalSlice";
 import { useEffect } from "react";
 
 const Layout = ({ children }: { children: any }) => {
@@ -11,7 +11,7 @@ const Layout = ({ children }: { children: any }) => {
   const cookies = new Cookies();
   const tokenFromQuery = router.query.jwt;
   const dispatch = useDispatch();
-  const { setUser, setFavGames } = globalAction;
+  const { setUser, setFavGames } = globalActions;
 
   if (tokenFromQuery) {
     try {
@@ -19,7 +19,6 @@ const Layout = ({ children }: { children: any }) => {
       cookies.set("jwt_token", tokenFromQuery, {
         expires: new Date(decode.exp * 1000),
       });
-      console.log("Fuck");
       router.push("/", undefined, { shallow: true });
     } catch (e) {
       console.log("Error", e);

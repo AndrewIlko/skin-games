@@ -36,3 +36,7 @@ body {
   transition: all 0.35s ease-in-out;
   transform: translateY(-60px);
 }
+
+.grid-game-page {
+  grid-template-columns: 35% 1fr 1fr;
+}

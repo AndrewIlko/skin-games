@@ -1,4 +1,4 @@
-import { globalAction } from "@/features/globalSlice";
+import { globalActions } from "@/features/globalSlice";
 import { GameCardType } from "@/ts/types/app_types";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -14,12 +14,12 @@ const GameCard = ({
   const { image, name, price, _id: id } = data;
   const { favGames } = useSelector((state: any) => state.global);
   const dispatch = useDispatch();
-  const { setFavGames, removeFavGames } = globalAction;
+  const { setFavGames, removeFavGames } = globalActions;
 
   return (
     <>
       <div
-        className={`border shadow-md rounded-[8px] relative  hover:shadow-sm transition-all ease-in-out duration-300 h-fit ${className} flex flex-col fav-wrapper overflow-hidden`}
+        className={`border rounded-[8px] relative transition-all ease-in-out duration-300 h-fit ${className} flex flex-col fav-wrapper overflow-hidden`}
       >
         <img src={image} className="rounded-t-[6px]" />
 

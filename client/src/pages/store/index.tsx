@@ -11,6 +11,7 @@ import { generateArr } from "@/helpers/func";
 import { CategoryInfoType, GameCardType } from "@/ts/types/app_types";
 import axios from "axios";
 import Head from "next/head";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
@@ -117,10 +118,12 @@ const StorePage = ({ categories }: { categories: CategoryInfoType[] }) => {
                   games.map((game: GameCardType) => {
                     return (
                       <Fragment key={uuid()}>
-                        <GameCard
-                          data={game}
-                          className={`bg-white max-w-[250px] h-full select-none cursor-pointer`}
-                        />
+                        <Link href={`/store/${game._id}`}>
+                          <GameCard
+                            data={game}
+                            className={`bg-white max-w-[250px] h-full select-none cursor-pointer`}
+                          />
+                        </Link>
                       </Fragment>
                     );
                   })}

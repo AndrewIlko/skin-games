@@ -1,30 +1,27 @@
 import { useSelector } from "react-redux";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Cookies from "universal-cookie";
 import { useDispatch } from "react-redux";
-import { globalAction } from "@/features/globalSlice";
+import { globalActions } from "@/features/globalSlice";
+import useDetectLeave from "@/custom_hooks/useDetectLeave";
 
 const AccountNav = () => {
   const { user } = useSelector((state: any) => state.global);
-  const { setUser } = globalAction;
+  const { setUser } = globalActions;
   const dispatch = useDispatch();
   const [isDropDown, setIsDropDown] = useState(false);
 
-  useEffect(() => {
-    const clickHandle = (e: any) => {
-      if (e.target.dataset.name != "account-nav") {
-        setIsDropDown(false);
-      }
-    };
-    window.addEventListener("click", clickHandle);
-    return () => window.removeEventListener("click", clickHandle);
-  }, [isDropDown]);
+  const accountNav = useRef();
+
+  useDetectLeave(accountNav, () => {
+    setIsDropDown(false);
+  });
 
   return (
     <>
       <div
-        data-name="account-nav"
+        ref={accountNav}
         className="flex items-center gap-[10px] w-[80px] h-[41px] bg-neutral-800 rounded-[4px] px-[8px] cursor-pointer relative"
         onClick={() => setIsDropDown(!isDropDown)}
       >
@@ -49,7 +46,7 @@ const AccountNav = () => {
           </svg>
         </div>
         {isDropDown && (
-          <div className="w-[190px] absolute border bg-neutral-50 top-[60px] rounded-[4px] py-[4px] right-0">
+          <div className="w-[190px] z-[50] absolute border bg-neutral-50 top-[60px] rounded-[4px] py-[4px] right-0">
             <div
               className="px-[16px] py-[12px] text-[14px] mx-[4px] font-[500] flex gap-[10px] rounded-[4px]"
               onClick={() => {

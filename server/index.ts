@@ -88,9 +88,11 @@ app.get("/game/:id", async (req: Request, res: Response) => {
     const gameById = await (await DB())
       .collection("games")
       .findOne({ _id: new mongoDB.ObjectId(id) });
-    res.json({ status: "Success", data: gameById });
+    res.status(200).json({ status: "Success", data: gameById });
   } catch (e) {
-    res.json({ status: "Failed", message: "Error, try again later" });
+    res
+      .status(400)
+      .json({ status: "Failed", message: "Error, try again later" });
   }
 });
 

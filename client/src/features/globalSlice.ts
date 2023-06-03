@@ -4,6 +4,7 @@ import { initialStateGlobal } from "@/ts/types/redux_types";
 const initialState: initialStateGlobal = {
   user: null,
   favGames: [],
+  cart: [],
 };
 
 const globalSlice = createSlice({
@@ -18,12 +19,11 @@ const globalSlice = createSlice({
       let result;
 
       if (Array.isArray(data)) {
-        result = [...state.favGames, ...action.payload];
-        state.favGames = result;
+        result = [...state.favGames, ...data];
       } else {
-        result = [...state.favGames, action.payload];
-        state.favGames = result;
+        result = [...state.favGames, data];
       }
+      state.favGames = result;
       localStorage.setItem("favGames", JSON.stringify(result));
     },
     removeFavGames: (state, action) => {
@@ -31,15 +31,25 @@ const globalSlice = createSlice({
       let result;
       if (Array.isArray(data)) {
         result = state.favGames.filter((id) => data.indexOf(id) != -1);
-        state.favGames = result;
       } else {
         result = state.favGames.filter((id) => id != data);
-        state.favGames = result;
       }
+      state.favGames = result;
       localStorage.setItem("favGames", JSON.stringify(result));
+    },
+    addToCart: (state, action) => {
+      const data = action.payload;
+      let result;
+      if (Array.isArray(data)) {
+        result = [...state.cart, ...data];
+      } else {
+        result = [...state.cart, data];
+      }
+      state.cart = result;
+      localStorage.setItem("cart", JSON.stringify(result));
     },
   },
 });
 
-export const globalAction = globalSlice.actions;
+export const globalActions = globalSlice.actions;
 export const globalReducer = globalSlice.reducer;
