@@ -71,7 +71,15 @@ export default function GamePage(props: { game: GameCardType }) {
             <div className="w-full border shadow-md rounded-[6px] px-[20px] py-[15px]">
               <AddToCart
                 onClick={() => {
-                  dispatch(addToCart(game._id));
+                  dispatch(
+                    addToCart({
+                      _id: game._id,
+                      image: game.image,
+                      count: 1,
+                      name: game.name,
+                      price: game.price,
+                    })
+                  );
                 }}
               />
             </div>

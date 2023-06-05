@@ -47,3 +47,15 @@ export type FilterObjType = {
   to: string;
   name: string;
 };
+
+export type CartItemType = {
+  _id: string;
+  image: string;
+  name: string;
+  count: number;
+  price: {
+    USD: string;
+    EUR?: string;
+    PLN?: string;
+  };
+};

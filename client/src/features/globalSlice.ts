@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { initialStateGlobal } from "@/ts/types/redux_types";
+import { CartItemType } from "@/ts/types/app_types";
 
 const initialState: initialStateGlobal = {
   user: null,
@@ -39,14 +40,26 @@ const globalSlice = createSlice({
     },
     addToCart: (state, action) => {
       const data = action.payload;
-      let result;
-      if (Array.isArray(data)) {
-        result = [...state.cart, ...data];
+      const cartItem = state.cart.find((item) => item._id == data._id);
+
+      if (cartItem) {
+        cartItem.count++;
       } else {
-        result = [...state.cart, data];
+        state.cart.push(action.payload);
       }
-      state.cart = result;
-      localStorage.setItem("cart", JSON.stringify(result));
+      localStorage.setItem("cart", JSON.stringify(state.cart));
+    },
+    removeFromCart: (state, action) => {
+      const data = action.payload;
+      const cartItem: CartItemType | undefined = state.cart.find(
+        (item) => item._id == data._id
+      );
+      if (cartItem!.count == 1) {
+        state.cart = state.cart.filter((item) => item._id != data._id);
+      } else {
+        cartItem!.count--;
+      }
+      localStorage.setItem("cart", JSON.stringify(state.cart));
     },
   },
 });

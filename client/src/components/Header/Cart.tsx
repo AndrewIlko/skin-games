@@ -1,3 +1,16 @@
+import useDetectLeave from "@/custom_hooks/useDetectLeave";
+import { globalActions } from "@/features/globalSlice";
+import { CartItemType } from "@/ts/types/app_types";
+import {
+  faXmark,
+  faCircleInfo,
+  faPlus,
+  faMinus,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Fragment, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
 export const CartSvg = (props: { className?: string }) => {
@@ -47,18 +60,130 @@ export const CartSvg = (props: { className?: string }) => {
 
 const Cart = () => {
   const { cart } = useSelector((state: any) => state.global);
+  const { addToCart, removeFromCart } = globalActions;
+  const [isShowCart, setIsShowCart] = useState(false);
+  const dispatch = useDispatch();
+
+  const cartRef = useRef<HTMLDivElement | null>(null);
+
+  useDetectLeave(cartRef, () => {
+    setIsShowCart(false);
+  });
 
   return (
     <>
-      <div className="rounded-[4px] p-[10px] bg-neutral-800">
-        <div className="relative">
-          <CartSvg className="text-white w-[21px] h-[21px]" />
-          {cart.length != 0 && (
-            <div className="w-[15px] h-[15px] bg-red-500 rounded-full absolute top-[-6px] right-[-6px] text-[8px] font-[500] text-white flex text-center items-center justify-center">
-              {cart.length}
-            </div>
-          )}
+      <div ref={cartRef} className="relative">
+        <div
+          onClick={() => {
+            setIsShowCart((prev) => !prev);
+          }}
+          className="rounded-[4px] p-[10px] bg-neutral-800 cursor-pointer"
+        >
+          <div className="relative">
+            <CartSvg className="text-white w-[21px] h-[21px]" />
+            {cart.length != 0 && (
+              <div className="w-[15px] h-[15px] bg-red-500 rounded-full absolute top-[-6px] right-[-6px] text-[8px] font-[500] text-white flex text-center items-center justify-center">
+                {cart.reduce((a: number, b: CartItemType) => a + b.count, 0)}
+              </div>
+            )}
+          </div>
         </div>
+        {isShowCart && (
+          <div className="w-[300px] absolute right-0 top-[45px] border bg-white shadow-md rounded-[6px] flex flex-col">
+            <div className="flex justify-between items-center px-[30px] border-b py-[15px]">
+              <span className="font-[500] text-[18px] select-none">
+                My shopping cart
+              </span>
+              <span className="relative flex justify-center items-center">
+                <button
+                  onClick={() => setIsShowCart(false)}
+                  className="px-[15px] pt-[16px] pb-[12px] absolute"
+                >
+                  <FontAwesomeIcon
+                    className="w-[23px] h-[23px]"
+                    icon={faXmark}
+                  />
+                </button>
+              </span>
+            </div>
+            {cart.length == 0 && (
+              <>
+                <div className="px-[30px] py-[20px] text-center">
+                  <div className="flex flex-col items-center gap-[10px]">
+                    <FontAwesomeIcon
+                      className="w-[40px] h-[40px]"
+                      icon={faCircleInfo}
+                    />
+                    <div className="font-[500] text-[18px]">
+                      Your shopping cart is empty
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {cart.length != 0 && (
+              <>
+                <div className="flex flex-col flex-1 px-[30px]">
+                  {cart.map((item: CartItemType) => {
+                    const { _id, name, price, image, count } = item;
+                    return (
+                      <Fragment key={_id}>
+                        <div className="flex flex-col gap-[5px] py-[10px] relative">
+                          <button
+                            onClick={() => dispatch(removeFromCart(item))}
+                            className="absolute top-[5px] right-0 hover:text-red-500 transition-all duration-300"
+                          >
+                            <FontAwesomeIcon
+                              className="w-[12px]"
+                              icon={faTrash}
+                            />
+                          </button>
+                          <div className="flex gap-[20px]">
+                            <img className="w-[100px]" src={image} />
+                            <div className="flex flex-col gap-[10px] text-[14px] font-[500]">
+                              <div>{name}</div>
+                              <div className="flex items-center gap-[6px]">
+                                <button
+                                  onClick={() => dispatch(removeFromCart(item))}
+                                  disabled={count == 1}
+                                >
+                                  <FontAwesomeIcon
+                                    className="w-[8px]"
+                                    icon={faMinus}
+                                  />
+                                </button>
+                                <div className="text-[14px]">{count}</div>
+                                <button
+                                  onClick={() => dispatch(addToCart(item))}
+                                >
+                                  <FontAwesomeIcon
+                                    className="w-[8px]"
+                                    icon={faPlus}
+                                  />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </Fragment>
+                    );
+                  })}
+                </div>
+                <div className="flex flex-col gap-[10px] px-[30px] py-[20px]">
+                  <div className="flex items-center">
+                    <div className="flex flex-1 font-[500]">Total</div>
+                    <div className="text-[30px] font-[500] leading-[24px]">
+                      0
+                    </div>
+                  </div>
+                  <button className="px-[10px] py-[10px] bg-neutral-800 rounded-[6px] text-white font-[500]">
+                    View cart
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </>
   );

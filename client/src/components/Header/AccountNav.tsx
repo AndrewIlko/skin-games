@@ -12,7 +12,7 @@ const AccountNav = () => {
   const dispatch = useDispatch();
   const [isDropDown, setIsDropDown] = useState(false);
 
-  const accountNav = useRef();
+  const accountNav = useRef<HTMLDivElement | null>(null);
 
   useDetectLeave(accountNav, () => {
     setIsDropDown(false);
